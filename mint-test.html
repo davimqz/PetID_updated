@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetID - Criar NFT Simples</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-100 to-blue-100 min-h-screen p-8">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-purple-900 mb-2">🐾 PetID NFT</h1>
+            <p class="text-gray-600">Crie um NFT do seu pet em segundos</p>
+        </div>
+
+        <!-- Server Status -->
+        <div id="serverStatus" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p class="text-sm text-gray-700">🔁 Verificando servidor...</p>
+        </div>
+
+        <!-- Wallet Connection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">🦊</span> Carteira MetaMask
+            </h2>
+            <div class="mb-3 p-3 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-800">
+                    <strong>🌐 Rede:</strong> Sepolia Testnet
+                    <span class="text-xs text-blue-600 ml-2">(será solicitada automaticamente)</span>
+                </p>
+            </div>
+            <button id="connectBtn" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 font-semibold transition">
+                Conectar MetaMask
+            </button>
+            <p id="walletInfo" class="mt-4 text-sm text-gray-600 text-center"></p>
+        </div>
+
+        <!-- NFT Creation Form -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-6 flex items-center">
+                <span class="mr-2">✨</span> Criar NFT do Pet
+            </h2>
+
+            <form id="nftForm" class="space-y-4">
+                <!-- Pet Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nome do Pet *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="petName" 
+                        required
+                        placeholder="Ex: Rex, Mimi, Totó..."
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+
+                <!-- Pet Species -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Espécie *
+                    </label>
+                    <select 
+                        id="petSpecies" 
+                        required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                        <option value="">Selecione...</option>
+                        <option value="Cachorro">🐶 Cachorro</option>
+                        <option value="Gato">🐱 Gato</option>
+                        <option value="Coelho">🐰 Coelho</option>
+                        <option value="Pássaro">🦜 Pássaro</option>
+                        <option value="Hamster">🐹 Hamster</option>
+                        <option value="Peixe">🐠 Peixe</option>
+                        <option value="Outro">🐾 Outro</option>
+                    </select>
+                </div>
+
+                <!-- Pet Breed -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Raça *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="petBreed" 
+                        required
+                        placeholder="Ex: Labrador, Persa, SRD..."
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+
+                <!-- Pet Color -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Cor *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="petColor" 
+                        required
+                        placeholder="Ex: Marrom, Preto e branco..."
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+
+                <!-- Birth Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Data de Nascimento (aproximada)
+                    </label>
+                    <input 
+                        type="date" 
+                        id="petBirthDate"
+                        max="<?php echo date('Y-m-d'); ?>"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+
+                <!-- Pet Photo -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Foto do Pet *
+                    </label>
+                    <input 
+                        type="file" 
+                        id="petPhoto" 
+                        accept="image/*"
+                        required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF ou WebP (máx. 10MB)</p>
+                </div>
+
+                <!-- Image Preview -->
+                <div id="imagePreview" class="hidden mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                    <img id="previewImg" src="" alt="Preview" class="max-w-xs rounded-lg border-2 border-purple-200 mx-auto" />
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    id="createBtn"
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-lg hover:from-green-600 hover:to-emerald-700 font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                >
+                    🚀 Criar NFT Completo
+                </button>
+            </form>
+
+            <!-- Progress/Result -->
+            <div id="resultArea" class="mt-6 hidden">
+                <div id="progressSteps" class="space-y-2 mb-4"></div>
+                <div id="finalResult" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-sm text-gray-700">
+                <strong>ℹ️ O que este formulário faz:</strong>
+            </p>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1 ml-5 list-disc">
+                <li>Upload da foto para IPFS via Pinata (automático)</li>
+                <li>Criação de metadata JSON (padrão OpenSea)</li>
+                <li>Mint do NFT no contrato PetNFT</li>
+                <li>Registro do pet no contrato PetID</li>
+                <li>Vinculação automática do NFT ao registro</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Unregister service worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => r.unregister());
+            });
+        }
+    </script>
+
+    <!-- Load ethers.js v5 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- Load helpers -->
+    <script src="./public/pinata-upload.js"></script>
+    <script src="./public/contract-helper.js"></script>
+
+    <!-- App Logic -->
+    <script>
+        let connected = false;
+        let walletAddress = null;
+
+        // Check server status
+        async function checkServer() {
+            try {
+                const resp = await fetch('/');
+                const statusEl = document.getElementById('serverStatus');
+                if (resp.ok) {
+                    statusEl.innerHTML = '<p class="text-sm text-green-700">✅ Servidor e Pinata proxy online</p>';
+                    statusEl.classList.replace('bg-yellow-50', 'bg-green-50');
+                    statusEl.classList.replace('border-yellow-200', 'border-green-200');
+                } else {
+                    statusEl.innerHTML = '<p class="text-sm text-red-700">❌ Servidor offline</p>';
+                    statusEl.classList.replace('bg-yellow-50', 'bg-red-50');
+                }
+            } catch (err) {
+                const statusEl = document.getElementById('serverStatus');
+                statusEl.innerHTML = '<p class="text-sm text-red-700">❌ Servidor não encontrado. Execute: <code class="bg-red-100 px-2 py-1 rounded">npm start</code></p>';
+                statusEl.classList.replace('bg-yellow-50', 'bg-red-50');
+                statusEl.classList.replace('border-yellow-200', 'border-red-200');
+            }
+        }
+
+        checkServer();
+
+        // Connect wallet
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            try {
+                const wallet = await connectWallet();
+                walletAddress = wallet.address;
+                connected = true;
+                
+                document.getElementById('walletInfo').innerHTML = 
+                    `✅ Conectado: <code class="bg-gray-100 px-2 py-1 rounded">${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}</code>`;
+                
+                document.getElementById('connectBtn').textContent = 'Conectado ✓';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            } catch (error) {
+                alert('Erro ao conectar: ' + error.message);
+            }
+        });
+
+        // Image preview
+        document.getElementById('petPhoto').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('nftForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!connected) {
+                alert('Por favor, conecte sua carteira MetaMask primeiro!');
+                return;
+            }
+
+            const name = document.getElementById('petName').value.trim();
+            const species = document.getElementById('petSpecies').value;
+            const breed = document.getElementById('petBreed').value.trim();
+            const color = document.getElementById('petColor').value.trim();
+            const birthDateInput = document.getElementById('petBirthDate').value;
+            const imageFile = document.getElementById('petPhoto').files[0];
+
+            if (!name || !species || !breed || !color || !imageFile) {
+                alert('Por favor, preencha todos os campos obrigatórios (*)');
+                return;
+            }
+
+            // Convert date to Unix timestamp (or use current date if not provided)
+            const birthDate = birthDateInput 
+                ? Math.floor(new Date(birthDateInput).getTime() / 1000)
+                : Math.floor(Date.now() / 1000);
+
+            const petData = { name, species, breed, color, birthDate };
+
+            // Show progress area
+            const resultArea = document.getElementById('resultArea');
+            const progressSteps = document.getElementById('progressSteps');
+            const finalResult = document.getElementById('finalResult');
+            const createBtn = document.getElementById('createBtn');
+
+            resultArea.classList.remove('hidden');
+            finalResult.classList.add('hidden');
+            progressSteps.innerHTML = '';
+            createBtn.disabled = true;
+            createBtn.textContent = '⏳ Criando NFT...';
+
+            function addStep(text, status = 'loading') {
+                const colors = {
+                    loading: 'text-blue-600',
+                    success: 'text-green-600',
+                    error: 'text-red-600'
+                };
+                const icons = {
+                    loading: '⏳',
+                    success: '✅',
+                    error: '❌'
+                };
+                const step = document.createElement('p');
+                step.className = `text-sm ${colors[status]}`;
+                step.textContent = `${icons[status]} ${text}`;
+                progressSteps.appendChild(step);
+            }
+
+            try {
+                // Call the complete flow
+                addStep('Etapa 1/5: Fazendo upload da imagem para IPFS...');
+                
+                const result = await createCompletePetNFT(petData, imageFile);
+                
+                progressSteps.innerHTML = '';
+                addStep('Etapa 1/5: Upload da imagem para IPFS', 'success');
+                addStep('Etapa 2/5: Criação de metadata JSON', 'success');
+                addStep('Etapa 3/5: Mint do NFT', 'success');
+                addStep('Etapa 4/5: Registro do pet', 'success');
+                addStep('Etapa 5/5: Vinculação do NFT ao registro', 'success');
+
+                // Show final result
+                finalResult.innerHTML = `
+                    <div class="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">🎉 NFT Criado com Sucesso!</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-white rounded p-3">
+                                <p class="font-semibold text-gray-700">Pet ID:</p>
+                                <p class="font-mono text-lg text-purple-600">#${result.petId.toString()}</p>
+                            </div>
+                            <div class="bg-white rounded p-3">
+                                <p class="font-semibold text-gray-700">NFT Token ID:</p>
+                                <p class="font-mono text-lg text-blue-600">#${result.tokenId.toString()}</p>
+                            </div>
+                            <div class="bg-white rounded p-3">
+                                <p class="font-semibold text-gray-700 mb-1">Imagem IPFS:</p>
+                                <a href="https://gateway.pinata.cloud/ipfs/${result.imageHash}" target="_blank" class="text-blue-600 underline break-all hover:text-blue-800">
+                                    ${result.imageHash.substring(0, 20)}...
+                                </a>
+                            </div>
+                            <div class="bg-white rounded p-3">
+                                <p class="font-semibold text-gray-700 mb-1">Metadata IPFS:</p>
+                                <a href="https://gateway.pinata.cloud/ipfs/${result.metadataHash}" target="_blank" class="text-blue-600 underline break-all hover:text-blue-800">
+                                    ${result.metadataHash.substring(0, 20)}...
+                                </a>
+                            </div>
+                        </div>
+                        <button 
+                            onclick="location.reload()" 
+                            class="mt-6 w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold"
+                        >
+                            ✨ Criar Outro NFT
+                        </button>
+                    </div>
+                `;
+                finalResult.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Erro:', error);
+                addStep('Erro: ' + error.message, 'error');
+                createBtn.disabled = false;
+                createBtn.textContent = '🚀 Criar NFT Completo';
+                
+                finalResult.innerHTML = `
+                    <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                        <p class="text-red-800 font-semibold">❌ Erro ao criar NFT</p>
+                        <p class="text-sm text-red-600 mt-2">${error.message}</p>
+                        <button 
+                            onclick="document.getElementById('resultArea').classList.add('hidden'); document.getElementById('createBtn').disabled = false; document.getElementById('createBtn').textContent = '🚀 Criar NFT Completo';" 
+                            class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                            Tentar Novamente
+                        </button>
+                    </div>
+                `;
+                finalResult.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

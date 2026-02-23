@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetID - Meus Pets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="text-3xl">🐾</div>
+                <div>
+                    <h1 class="text-2xl font-bold text-purple-900">PetID</h1>
+                    <p class="text-xs text-gray-500">Gestão de Pets NFT</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="networkInfo" class="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
+                    <span class="font-semibold">Rede:</span> <span id="networkName">-</span>
+                </div>
+                <div id="walletInfo" class="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-mono text-sm">
+                    Conectando...
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Server Status Banner -->
+        <div id="pinataBanner" class="bg-yellow-50 border border-yellow-200 rounded-lg shadow p-4 mb-6">
+            <p id="pinataStatus" class="text-sm text-gray-700">🔁 Verificando servidor...</p>
+        </div>
+
+        <!-- Register Pet -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-6 flex items-center text-purple-900">
+                <span class="mr-3">✨</span> Registrar Novo Pet
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do Pet *</label>
+                    <input 
+                        id="petName" 
+                        type="text" 
+                        placeholder="Ex: Rex, Mimi..." 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Espécie *</label>
+                    <input 
+                        id="petSpecies" 
+                        type="text" 
+                        placeholder="Ex: Cachorro, Gato..." 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Raça *</label>
+                    <input 
+                        id="petBreed" 
+                        type="text" 
+                        placeholder="Ex: Labrador, Persa, SRD..." 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cor *</label>
+                    <input 
+                        id="petColor" 
+                        type="text" 
+                        placeholder="Ex: Marrom, Preto..." 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Data de Nascimento</label>
+                    <input 
+                        id="petBirthDate" 
+                        type="date" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto do Pet *</label>
+                    <input 
+                        id="petImage" 
+                        type="file" 
+                        accept="image/*" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF ou WebP (máx. 10MB)</p>
+                </div>
+                <div id="petPreview" class="md:col-span-2 hidden">
+                    <img id="petPreviewImg" src="" alt="Preview" class="max-w-xs rounded-lg border-2 border-purple-200 mx-auto" />
+                </div>
+            </div>
+            <button id="registerBtn" class="mt-6 w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 rounded-lg hover:from-purple-700 hover:to-blue-700 font-bold text-lg transition">
+                🚀 Registrar Pet (NFT + Blockchain)
+            </button>
+            <p id="registerResult" class="mt-4 text-sm text-center"></p>
+        </div>
+
+        <!-- My Pets -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-purple-900 flex items-center">
+                    <span class="mr-3">🐕</span> Meus Pets
+                </h2>
+                <button id="loadPetsBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition font-semibold">
+                    🔄 Atualizar
+                </button>
+            </div>
+            <div id="petsList" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- Unregister service worker for development -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let reg of registrations) {
+                    reg.unregister().then(() => console.log('Service worker unregistered for development'));
+                }
+            });
+        }
+    </script>
+
+    <!-- Load ethers.js v5 from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- Load Pinata upload helper -->
+    <script src="./public/pinata-upload.js"></script>
+    
+    <!-- Load contract helper -->
+    <script src="./public/contract-helper.js"></script>
+
+    <!-- App logic -->
+    <script>
+        let wallet = null;
+        let pinataConfigured = false;
+
+        // Auto-connect wallet on page load
+        async function init() {
+            // Check Pinata proxy
+            checkPinataProxy();
+            
+            // Auto-connect wallet
+            try {
+                wallet = await connectWallet();
+                const walletInfoEl = document.getElementById('walletInfo');
+                if (walletInfoEl) {
+                    walletInfoEl.textContent = `${wallet.address.substring(0, 6)}...${wallet.address.substring(38)}`;
+                    walletInfoEl.classList.replace('bg-purple-100', 'bg-green-100');
+                    walletInfoEl.classList.replace('text-purple-800', 'text-green-800');
+                }
+                
+                const networkInfoEl = document.getElementById('networkName');
+                if (networkInfoEl) {
+                    networkInfoEl.textContent = CONTRACT_CONFIG.network.name;
+                }
+            } catch (error) {
+                console.error('Auto-connect falhou:', error);
+                const walletInfoEl = document.getElementById('walletInfo');
+                if (walletInfoEl) {
+                    walletInfoEl.textContent = 'Erro ao conectar';
+                    walletInfoEl.classList.replace('bg-purple-100', 'bg-red-100');
+                    walletInfoEl.classList.replace('text-purple-800', 'text-red-800');
+                }
+                alert('Por favor, conecte sua MetaMask e recarregue a página.');
+                // Redirect back to home
+                setTimeout(() => window.location.href = '/', 2000);
+            }
+        }
+
+        // Check backend Pinata proxy availability
+        async function checkPinataProxy() {
+            try {
+                const resp = await fetch('/');
+                if (resp.ok) {
+                    pinataConfigured = true;
+                    const statusEl = document.getElementById('pinataStatus');
+                    if (statusEl) {
+                        statusEl.textContent = '✓ Servidor online — uploads automáticos ativados.';
+                        statusEl.classList.add('text-green-600');
+                    }
+                    const banner = document.getElementById('pinataBanner');
+                    if (banner) {
+                        banner.classList.replace('bg-yellow-50', 'bg-green-50');
+                        banner.classList.replace('border-yellow-200', 'border-green-200');
+                    }
+                } else {
+                    const statusEl = document.getElementById('pinataStatus');
+                    if (statusEl) statusEl.textContent = '⚠️ Servidor indisponível.';
+                }
+            } catch (err) {
+                console.warn('Pinata proxy check failed', err);
+                const statusEl = document.getElementById('pinataStatus');
+                if (statusEl) {
+                    statusEl.textContent = '❌ Servidor offline — execute: npm start';
+                    statusEl.classList.add('text-red-600');
+                }
+                const banner = document.getElementById('pinataBanner');
+                if (banner) {
+                    banner.classList.replace('bg-yellow-50', 'bg-red-50');
+                    banner.classList.replace('border-yellow-200', 'border-red-200');
+                }
+            }
+        }
+
+        // Image preview handler
+        document.getElementById('petImage').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('petPreviewImg').src = e.target.result;
+                    document.getElementById('petPreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Register Pet (complete flow)
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            if (!pinataConfigured) {
+                alert('Servidor offline! Execute: npm start');
+                return;
+            }
+
+            const name = document.getElementById('petName').value.trim();
+            const species = document.getElementById('petSpecies').value.trim();
+            const breed = document.getElementById('petBreed').value.trim();
+            const color = document.getElementById('petColor').value.trim();
+            const birthDateInput = document.getElementById('petBirthDate').value;
+            const fileInput = document.getElementById('petImage');
+            const imageFile = fileInput.files[0];
+
+            if (!name || !species || !breed || !color || !imageFile) {
+                alert('Por favor, preencha todos os campos obrigatórios (*)');
+                return;
+            }
+
+            // Convert date to Unix timestamp (or use current date if not provided)
+            const birthDate = birthDateInput 
+                ? Math.floor(new Date(birthDateInput).getTime() / 1000)
+                : Math.floor(Date.now() / 1000);
+
+            const petData = { name, species, breed, color, birthDate };
+
+            const resultEl = document.getElementById('registerResult');
+            const registerBtn = document.getElementById('registerBtn');
+            
+            try {
+                registerBtn.disabled = true;
+                registerBtn.textContent = '⏳ Processando...';
+                
+                resultEl.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-blue-700 font-semibold">⏳ Criando Pet NFT...</p>
+                        <p class="text-sm text-blue-600 mt-1">Aguarde, isso pode levar alguns segundos...</p>
+                    </div>
+                `;
+                
+                const result = await createCompletePetNFT(petData, imageFile);
+                
+                resultEl.innerHTML = `
+                    <div class="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">🎉 Pet NFT Criado com Sucesso!</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-white rounded-lg p-3">
+                                <p class="font-semibold text-gray-700">Pet ID:</p>
+                                <p class="font-mono text-lg text-purple-600">#${result.petId.toString()}</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <p class="font-semibold text-gray-700">NFT Token ID:</p>
+                                <p class="font-mono text-lg text-blue-600">#${result.tokenId.toString()}</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <p class="font-semibold text-gray-700 mb-1">Ver no IPFS:</p>
+                                <a href="https://gateway.pinata.cloud/ipfs/${result.imageHash}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                    Abrir Imagem
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Clear form
+                document.getElementById('petName').value = '';
+                document.getElementById('petSpecies').value = '';
+                document.getElementById('petBreed').value = '';
+                document.getElementById('petColor').value = '';
+                document.getElementById('petBirthDate').value = '';
+                document.getElementById('petImage').value = '';
+                document.getElementById('petPreview').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                resultEl.innerHTML = `
+                    <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                        <p class="text-red-800 font-semibold">❌ Erro ao criar Pet NFT</p>
+                        <p class="text-sm text-red-600 mt-2">${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = '🚀 Registrar Pet (NFT + Blockchain)';
+            }
+        });
+
+        // Load My Pets
+        document.getElementById('loadPetsBtn').addEventListener('click', async () => {
+            try {
+                const petsListEl = document.getElementById('petsList');
+                petsListEl.innerHTML = '<p class="text-center text-gray-500 py-4">🔄 Carregando...</p>';
+                
+                const petIds = await getMyPets();
+                
+                if (petIds.length === 0) {
+                    petsListEl.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-gray-400 text-lg mb-2">🐾</p>
+                            <p class="text-gray-500">Você ainda não tem pets registrados.</p>
+                            <p class="text-sm text-gray-400 mt-1">Registre seu primeiro pet acima!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                petsListEl.innerHTML = petIds.map(id => `
+                    <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 p-4 rounded-lg hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-purple-900">Pet ID: #${id.toString()}</p>
+                                <p class="text-sm text-gray-600">Clique para ver detalhes</p>
+                            </div>
+                            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm font-semibold">
+                                Ver Detalhes
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('petsList').innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p class="text-red-600">❌ Erro: ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

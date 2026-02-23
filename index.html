@@ -412,6 +412,11 @@
                 // Listen for account changes
                 window.ethereum.on('accountsChanged', handleAccountsChanged);
                 window.ethereum.on('chainChanged', () => window.location.reload());
+
+                // Redirect to main app after successful connection
+                setTimeout(() => {
+                  window.location.href = '/contract-test.html';
+                }, 500);
               } catch (err) {
                 console.error('connectWallet error', err);
                 alert('Erro ao conectar: ' + (err?.message || err));
@@ -446,9 +451,14 @@
               await connectWallet();
             });
 
-            // Register service worker for PWA
+            // Register service worker for PWA (skip during local file dev or localhost)
             if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed', err));
+              const shouldRegister = location.protocol.startsWith('http') && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+              if (shouldRegister) {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed', err));
+              } else {
+                console.info('Skipping service worker registration on localhost/file protocol for development.');
+              }
             }
 
             // PWA install prompt handling

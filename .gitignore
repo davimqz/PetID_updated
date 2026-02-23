@@ -1,0 +1,8 @@
+node_modules/
+.env
+.DS_Store
+artifacts/
+cache/
+coverage/
+.env.local
+.nyc_output/
