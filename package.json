@@ -1,35 +1,12 @@
 {
   "name": "petid-landing",
   "version": "1.0.0",
-  "description": "PetID landing page and smart contracts",
+  "description": "PetID landing page helper scripts",
   "scripts": {
-    "generate-pngs": "node ./scripts/generate-pngs.js",
-    "build:css": "tailwindcss -i ./src/styles/tailwind.css -o ./public/styles.css --minify",
-    "watch:css": "tailwindcss -i ./src/styles/tailwind.css -o ./public/styles.css --watch",
-    "dev": "concurrently \"npm:watch:css\" \"npx live-server --port=3000 --no-browser\"",
-    "compile": "hardhat compile",
-    "deploy:local": "hardhat run --network localhost scripts/deploy.js",
-    "start": "node server/index.js",
-    "start:server": "node server/index.js"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
-    "axios": "^1.13.5",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "form-data": "^4.0.5",
-    "multer": "^2.0.2"
+    "generate-pngs": "node ./scripts/generate-pngs.js"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "autoprefixer": "^10.4.14",
-    "concurrently": "^8.2.0",
-    "dotenv": "^16.0.0",
-    "ethers": "^6.8.0",
-    "glob": "^10.3.3",
-    "hardhat": "^2.17.0",
-    "postcss": "^8.4.21",
     "sharp": "^0.32.4",
-    "tailwindcss": "^3.4.8"
+    "glob": "^10.3.3"
   }
 }
