@@ -6,3 +6,4 @@ cache/
 coverage/
 .env.local
 .nyc_output/
+.vercel
